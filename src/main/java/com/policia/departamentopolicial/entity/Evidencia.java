@@ -21,7 +21,7 @@ public class Evidencia {
     private Caso caso;
 
     @Lob
-    @Column(name = "descricao")
+    @Column(name = "descricao", columnDefinition="text")
     private String descricao;
 
     @Column(name = "localizacao", length = 150)

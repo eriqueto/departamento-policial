@@ -27,6 +27,6 @@ public class Depoimento {
     private java.time.LocalDateTime dataHoraDepoimento;
 
     @Lob
-    @Column(name = "conteudo_depoimento")
+    @Column(name = "conteudo_depoimento", columnDefinition="text")
     private String conteudoDepoimento;
 }

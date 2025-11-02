@@ -32,6 +32,6 @@ public class Pessoa {
     private Endereco endereco;
 
     @Lob
-    @Column(name = "foto_perfil")
+    @Column(name = "foto_perfil", columnDefinition = "blob")
     private byte[] fotoPerfil;
 }

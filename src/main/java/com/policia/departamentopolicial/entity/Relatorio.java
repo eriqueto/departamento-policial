@@ -21,7 +21,7 @@ public class Relatorio {
     private Caso caso;
 
     @Lob
-    @Column(name = "conteudo")
+    @Column(name = "conteudo", columnDefinition="text")
     private String conteudo;
 
     @ManyToOne

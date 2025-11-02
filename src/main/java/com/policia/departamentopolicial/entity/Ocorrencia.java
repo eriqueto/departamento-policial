@@ -28,6 +28,6 @@ public class Ocorrencia {
     private Policial policialRegistro;
 
     @Lob
-    @Column(name = "descricao")
+    @Column(name = "descricao", columnDefinition="text")
     private String descricao;
 }
