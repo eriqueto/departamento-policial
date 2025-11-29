@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EnderecoResponseDTO {
-    private int id;
+    private Integer id;
     private String cep;
     private String logradouro;
     private String complemento;

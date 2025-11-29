@@ -19,7 +19,7 @@ public class EnderecoService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
-    public Endereco getEnderecoById(int id) {
+    public Endereco getEnderecoById(Integer id) {
         Endereco endereco = enderecoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço não encontrado"));
         return endereco;
@@ -47,7 +47,7 @@ public class EnderecoService {
         return convertToResponseDTO(enderecoSalvo);
     }
 
-    public EnderecoResponseDTO update(int id, EnderecoRequestDTO dto) {
+    public EnderecoResponseDTO update(Integer id, EnderecoRequestDTO dto) {
         Endereco enderecoExistente = enderecoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereco não encontrado"));
 
@@ -57,7 +57,7 @@ public class EnderecoService {
         return convertToResponseDTO(enderecoSalvo);
     }
 
-    public void delete(int id) {
+    public void delete(Integer id) {
         if (!enderecoRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço não encontrado");
         }

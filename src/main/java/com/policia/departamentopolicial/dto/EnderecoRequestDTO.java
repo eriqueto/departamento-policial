@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class EnderecoRequestDTO {
-    private int id;
+    private Integer id;
 
     @NotBlank(message = "CEP não pode estar em branco")
     @Size(min = 9, max = 9)
