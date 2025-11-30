@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Lista de Dados</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 th:text="${title}"></h1>
+    </header>
+
+    <nav class="navbar">
+        <a th:href="@{/}">Início</a>
+        <a th:href="@{/view/pessoas}">Pessoas</a>
+        <a th:href="@{/view/policiais}">Policiais</a>
+        <a th:href="@{/view/delegacias}">Delegacias</a>
+        <a th:href="@{/view/enderecos}">Endereços</a>
+        <a th:href="@{/view/ocorrencias}">Ocorrências</a>
+        <a th:href="@{/view/casos}">Casos</a>
+        <a th:href="@{/view/evidencias}">Evidências</a>
+        <a th:href="@{/view/relatorios}">Relatórios</a>
+        <a th:href="@{/view/depoimentos}">Depoimentos</a>
+    </nav>
+
+    <div class="scroll-table">
+        <table th:if="${!dataList.isEmpty()}">
+            <thead>
+            <tr>
+                <th th:each="header : ${headers}" th:text="${header}">Cabeçalho</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${dataList}">
+                <td th:each="header : ${headers}" th:text="${item.get(header)}">Valor</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${dataList.isEmpty()}">Nenhum registro encontrado.</p>
+    </div>
+
+    <a th:href="@{/}" class="back-link">Voltar para o Início</a>
+</div>
+</body>
+</html>

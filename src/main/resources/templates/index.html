@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Departamento Policial - Início</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Departamento Policial</h1>
+        <p>Sistema de Gestão de Ocorrências, Pessoas e Casos.</p>
+    </header>
+
+    <nav class="navbar">
+        <a th:href="@{/}">Início</a>
+        <a th:href="@{/register/pessoa}">Cadastrar Pessoa</a>
+        <a th:href="@{/view/pessoas}">Pessoas</a>
+        <a th:href="@{/view/policiais}">Policiais</a>
+        <a th:href="@{/view/delegacias}">Delegacias</a>
+        <a th:href="@{/view/enderecos}">Endereços</a>
+        <a th:href="@{/view/ocorrencias}">Ocorrências</a>
+        <a th:href="@{/view/casos}">Casos</a>
+        <a th:href="@{/view/evidencias}">Evidências</a>
+        <a th:href="@{/view/relatorios}">Relatórios</a>
+        <a th:href="@{/view/depoimentos}">Depoimentos</a>
+    </nav>
+
+    <h2>Bem-vindo!</h2>
+    <p>Use a barra de navegação acima para visualizar os dados das entidades do sistema. Cada link lista os registros
+        obtidos através dos endpoints REST existentes no backend Spring Boot.</p>
+
+    <h3>Entidades do Sistema:</h3>
+    <ul>
+        <li><a th:href="@{/view/pessoas}">Pessoas</a> (Endpoint: <code>/api/pessoas</code>)</li>
+        <li><a th:href="@{/view/policiais}">Policiais</a> (Endpoint: <code>/api/policiais</code>)</li>
+        <li><a th:href="@{/view/delegacias}">Delegacias</a> (Endpoint: <code>/api/delegacias</code>)</li>
+        <li><a th:href="@{/view/enderecos}">Endereços</a> (Endpoint: <code>/api/enderecos</code>)</li>
+        <li><a th:href="@{/view/ocorrencias}">Ocorrências</a> (Endpoint: <code>/api/ocorrencias</code>)</li>
+        <li><a th:href="@{/view/casos}">Casos</a> (Endpoint: <code>/api/casos</code>)</li>
+        <li><a th:href="@{/view/evidencias}">Evidências</a> (Endpoint: <code>/api/evidencias</code>)</li>
+        <li><a th:href="@{/view/relatorios}">Relatórios</a> (Endpoint: <code>/api/relatorios</code>)</li>
+        <li><a th:href="@{/view/depoimentos}">Depoimentos</a> (Endpoint: <code>/api/depoimentos</code>)</li>
+    </ul>
+</div>
+</body>
+</html>

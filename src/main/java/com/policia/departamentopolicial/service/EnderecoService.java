@@ -33,13 +33,14 @@ public class EnderecoService {
     }
 
     public EnderecoResponseDTO create(EnderecoRequestDTO dto) {
-        if (dto.getId() == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id é obrigatório");
+        if (dto.getId() != null) {
+            if (dto.getId() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id deve ser um valor positivo para criação manual");
+            }
+            if (enderecoRepository.existsById(dto.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id já cadastrado");
+            }
         }
-        if (enderecoRepository.existsById(dto.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id já cadastrado");
-        }
-
         Endereco novoEndereco = new Endereco();
         updateEntityFromDTO(novoEndereco, dto);
 
@@ -76,7 +77,7 @@ public class EnderecoService {
     }
 
     private void updateEntityFromDTO(Endereco endereco, EnderecoRequestDTO dto) {
-        if (endereco.getId() == null) {
+        if (endereco.getId() == null && dto.getId() != null) {
             endereco.setId(dto.getId());
         }
         endereco.setCep(dto.getCep());

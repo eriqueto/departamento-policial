@@ -2,6 +2,7 @@ package com.policia.departamentopolicial.service;
 
 import com.policia.departamentopolicial.dto.PessoaRequestDTO;
 import com.policia.departamentopolicial.dto.PessoaResponseDTO;
+import com.policia.departamentopolicial.entity.Endereco;
 import com.policia.departamentopolicial.entity.Pessoa;
 import com.policia.departamentopolicial.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class PessoaService {
 
     @Autowired
     private PessoaRepository pessoaRepository;
+
+    @Autowired
+    private EnderecoService enderecoService;
 
     public PessoaResponseDTO findById(String cpf) {
         Pessoa pessoa = pessoaRepository.findById(cpf)
@@ -37,6 +41,17 @@ public class PessoaService {
         }
         if (pessoaRepository.existsById(dto.getCpf())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CPF já cadastrado");
+        }
+
+        if (dto.getEndereco() != null) {
+            Endereco novoEndereco = new Endereco();
+            novoEndereco.setCep(dto.getEndereco().getCep());
+            novoEndereco.setLogradouro(dto.getEndereco().getLogradouro());
+            novoEndereco.setComplemento(dto.getEndereco().getComplemento());
+            novoEndereco.setBairro(dto.getEndereco().getBairro());
+
+            novoEndereco.setId(enderecoService.create(dto.getEndereco()).getId());
+            dto.setIdEndereco(novoEndereco.getId());
         }
 
         Pessoa novaPessoa = new Pessoa();
@@ -82,5 +97,11 @@ public class PessoaService {
         pessoa.setSexo(dto.getSexo());
         pessoa.setDataNascimento(dto.getDataNascimento());
         pessoa.setTelefone(dto.getTelefone());
+
+        if (dto.getIdEndereco() != null) {
+            Endereco endereco = new Endereco();
+            endereco.setId(dto.getIdEndereco());
+            pessoa.setEndereco(endereco);
+        }
     }
 }
