@@ -1,54 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.RelatorioRequestDTO;
+import com.policia.departamentopolicial.dto.RelatorioResponseDTO;
 import com.policia.departamentopolicial.entity.Relatorio;
-import com.policia.departamentopolicial.repository.RelatorioRepository;
+import com.policia.departamentopolicial.service.RelatorioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/relatorios")
 public class RelatorioController {
 
-    private final RelatorioRepository repository;
+    private final RelatorioService service;
 
-    public RelatorioController(RelatorioRepository repository) {
-        this.repository = repository;
+    public RelatorioController(RelatorioService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Relatorio> findAll() {
-        return repository.findAll();
+    public List<RelatorioResponseDTO> findAll() {
+        return service.getRelatorios();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Relatorio> findById(@PathVariable Integer id) {
-        Optional<Relatorio> r = repository.findById(id);
-        return r.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Relatorio r = service.getRelatorioById(id);
+        return ResponseEntity.ok(r);
     }
 
     @PostMapping
-    public ResponseEntity<Relatorio> create(@RequestBody Relatorio relatorio) {
-        Relatorio saved = repository.save(relatorio);
+    public ResponseEntity<RelatorioResponseDTO> create(@RequestBody RelatorioRequestDTO dto) {
+        RelatorioResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Relatorio> update(@PathVariable Integer id, @RequestBody Relatorio relatorio) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        relatorio.setId(id);
-        Relatorio saved = repository.save(relatorio);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<RelatorioResponseDTO> update(@PathVariable Integer id, @RequestBody RelatorioRequestDTO dto) {
+        RelatorioResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-

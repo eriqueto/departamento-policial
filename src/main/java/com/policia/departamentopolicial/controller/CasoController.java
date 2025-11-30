@@ -1,54 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.CasoRequestDTO;
+import com.policia.departamentopolicial.dto.CasoResponseDTO;
 import com.policia.departamentopolicial.entity.Caso;
-import com.policia.departamentopolicial.repository.CasoRepository;
+import com.policia.departamentopolicial.service.CasoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/casos")
 public class CasoController {
 
-    private final CasoRepository repository;
+    private final CasoService service;
 
-    public CasoController(CasoRepository repository) {
-        this.repository = repository;
+    public CasoController(CasoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Caso> findAll() {
-        return repository.findAll();
+    public List<CasoResponseDTO> findAll() {
+        return service.getCasos();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Caso> findById(@PathVariable Integer id) {
-        Optional<Caso> c = repository.findById(id);
-        return c.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Caso c = service.getCasoById(id);
+        return ResponseEntity.ok(c);
     }
 
     @PostMapping
-    public ResponseEntity<Caso> create(@RequestBody Caso caso) {
-        Caso saved = repository.save(caso);
+    public ResponseEntity<CasoResponseDTO> create(@RequestBody CasoRequestDTO dto) {
+        CasoResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Caso> update(@PathVariable Integer id, @RequestBody Caso caso) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        caso.setId(id);
-        Caso saved = repository.save(caso);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<CasoResponseDTO> update(@PathVariable Integer id, @RequestBody CasoRequestDTO dto) {
+        CasoResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-

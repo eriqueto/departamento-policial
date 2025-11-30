@@ -1,54 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.DelegaciaRequestDTO;
+import com.policia.departamentopolicial.dto.DelegaciaResponseDTO;
 import com.policia.departamentopolicial.entity.Delegacia;
-import com.policia.departamentopolicial.repository.DelegaciaRepository;
+import com.policia.departamentopolicial.service.DelegaciaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/delegacias")
 public class DelegaciaController {
 
-    private final DelegaciaRepository repository;
+    private final DelegaciaService service;
 
-    public DelegaciaController(DelegaciaRepository repository) {
-        this.repository = repository;
+    public DelegaciaController(DelegaciaService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Delegacia> findAll() {
-        return repository.findAll();
+    public List<DelegaciaResponseDTO> findAll() {
+        return service.getDelegacias();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Delegacia> findById(@PathVariable Integer id) {
-        Optional<Delegacia> d = repository.findById(id);
-        return d.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Delegacia d = service.getDelegaciaById(id);
+        return ResponseEntity.ok(d);
     }
 
     @PostMapping
-    public ResponseEntity<Delegacia> create(@RequestBody Delegacia delegacia) {
-        Delegacia saved = repository.save(delegacia);
+    public ResponseEntity<DelegaciaResponseDTO> create(@RequestBody DelegaciaRequestDTO dto) {
+        DelegaciaResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Delegacia> update(@PathVariable Integer id, @RequestBody Delegacia delegacia) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        delegacia.setId(id);
-        Delegacia saved = repository.save(delegacia);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<DelegaciaResponseDTO> update(@PathVariable Integer id, @RequestBody DelegaciaRequestDTO dto) {
+        DelegaciaResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-

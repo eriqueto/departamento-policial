@@ -1,54 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.OcorrenciaRequestDTO;
+import com.policia.departamentopolicial.dto.OcorrenciaResponseDTO;
 import com.policia.departamentopolicial.entity.Ocorrencia;
-import com.policia.departamentopolicial.repository.OcorrenciaRepository;
+import com.policia.departamentopolicial.service.OcorrenciaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ocorrencias")
 public class OcorrenciaController {
 
-    private final OcorrenciaRepository repository;
+    private final OcorrenciaService service;
 
-    public OcorrenciaController(OcorrenciaRepository repository) {
-        this.repository = repository;
+    public OcorrenciaController(OcorrenciaService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Ocorrencia> findAll() {
-        return repository.findAll();
+    public List<OcorrenciaResponseDTO> findAll() {
+        return service.getOcorrencias();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Ocorrencia> findById(@PathVariable Integer id) {
-        Optional<Ocorrencia> o = repository.findById(id);
-        return o.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Ocorrencia o = service.getOcorrenciaById(id);
+        return ResponseEntity.ok(o);
     }
 
     @PostMapping
-    public ResponseEntity<Ocorrencia> create(@RequestBody Ocorrencia ocorrencia) {
-        Ocorrencia saved = repository.save(ocorrencia);
+    public ResponseEntity<OcorrenciaResponseDTO> create(@RequestBody OcorrenciaRequestDTO dto) {
+        OcorrenciaResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ocorrencia> update(@PathVariable Integer id, @RequestBody Ocorrencia ocorrencia) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        ocorrencia.setNumBoletim(id);
-        Ocorrencia saved = repository.save(ocorrencia);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<OcorrenciaResponseDTO> update(@PathVariable Integer id, @RequestBody OcorrenciaRequestDTO dto) {
+        OcorrenciaResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-

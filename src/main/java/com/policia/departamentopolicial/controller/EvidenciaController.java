@@ -1,54 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.EvidenciaRequestDTO;
+import com.policia.departamentopolicial.dto.EvidenciaResponseDTO;
 import com.policia.departamentopolicial.entity.Evidencia;
-import com.policia.departamentopolicial.repository.EvidenciaRepository;
+import com.policia.departamentopolicial.service.EvidenciaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/evidencias")
 public class EvidenciaController {
 
-    private final EvidenciaRepository repository;
+    private final EvidenciaService service;
 
-    public EvidenciaController(EvidenciaRepository repository) {
-        this.repository = repository;
+    public EvidenciaController(EvidenciaService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Evidencia> findAll() {
-        return repository.findAll();
+    public List<EvidenciaResponseDTO> findAll() {
+        return service.getEvidencias();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Evidencia> findById(@PathVariable Integer id) {
-        Optional<Evidencia> e = repository.findById(id);
-        return e.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Evidencia e = service.getEvidenciaById(id);
+        return ResponseEntity.ok(e);
     }
 
     @PostMapping
-    public ResponseEntity<Evidencia> create(@RequestBody Evidencia evidencia) {
-        Evidencia saved = repository.save(evidencia);
+    public ResponseEntity<EvidenciaResponseDTO> create(@RequestBody EvidenciaRequestDTO dto) {
+        EvidenciaResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Evidencia> update(@PathVariable Integer id, @RequestBody Evidencia evidencia) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        evidencia.setId(id);
-        Evidencia saved = repository.save(evidencia);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<EvidenciaResponseDTO> update(@PathVariable Integer id, @RequestBody EvidenciaRequestDTO dto) {
+        EvidenciaResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -1,58 +1,51 @@
 package com.policia.departamentopolicial.controller;
 
+import com.policia.departamentopolicial.dto.EnderecoRequestDTO;
+import com.policia.departamentopolicial.dto.EnderecoResponseDTO;
 import com.policia.departamentopolicial.entity.Endereco;
-import com.policia.departamentopolicial.repository.EnderecoRepository;
+import com.policia.departamentopolicial.service.EnderecoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/enderecos")
 public class EnderecoController {
 
-    private final EnderecoRepository repository;
+    private final EnderecoService service;
 
-    public EnderecoController(EnderecoRepository repository) {
-        this.repository = repository;
+    public EnderecoController(EnderecoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Endereco> findAll() {
-        return repository.findAll();
+    public List<EnderecoResponseDTO> findAll() {
+        return service.getEnderecos();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Endereco> findById(@PathVariable Integer id) {
-        Optional<Endereco> e = repository.findById(id);
-        return e.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Endereco e = service.getEnderecoById(id);
+        return ResponseEntity.ok(e);
     }
 
     @PostMapping
-    public ResponseEntity<Endereco> create(@RequestBody Endereco endereco) {
-        Endereco saved = repository.save(endereco);
+    public ResponseEntity<EnderecoResponseDTO> create(@RequestBody EnderecoRequestDTO dto) {
+        EnderecoResponseDTO saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Endereco> update(@PathVariable Integer id, @RequestBody Endereco endereco) {
-        if (!repository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        endereco.setId(id);
-        Endereco saved = repository.save(endereco);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<EnderecoResponseDTO> update(@PathVariable Integer id, @RequestBody EnderecoRequestDTO dto) {
+        EnderecoResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        if (!repository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        repository.deleteById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
-
