@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -41,6 +38,8 @@ public class WebController {
     private RelatorioService relatorioService;
     @Autowired
     private DepoimentoService depoimentoService;
+    @Autowired
+    private ViewService viewService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -273,6 +272,23 @@ public class WebController {
         } else {
             model.addAttribute("headers", List.of("id", "casoId", "pessoaCpf", "dataHoraDepoimento", "conteudoDepoimento"));
         }
+        return "list";
+    }
+
+    @GetMapping("/view/casos-ativos")
+    public String listCasosAtivos(Model model) {
+        List<Map<String, Object>> casosAtivos = viewService.getCasosAtivosDetails();
+
+        if (!casosAtivos.isEmpty()) {
+            Set<String> headers = casosAtivos.get(0).keySet();
+            model.addAttribute("headers", headers);
+            model.addAttribute("dataList", casosAtivos);
+        } else {
+            model.addAttribute("dataList", Collections.emptyList());
+            model.addAttribute("headers", Arrays.asList("ID_Caso", "Status", "Nome_Policial_Responsavel", "Nome_Declarante")); // Headers de fallback
+        }
+
+        model.addAttribute("title", "Casos Ativos (VIEW)");
         return "list";
     }
 }
