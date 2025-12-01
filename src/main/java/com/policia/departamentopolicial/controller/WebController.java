@@ -1,6 +1,7 @@
 package com.policia.departamentopolicial.controller;
 
 import com.policia.departamentopolicial.dto.EnderecoRequestDTO;
+import com.policia.departamentopolicial.dto.OcorrenciaRequestDTO;
 import com.policia.departamentopolicial.dto.PessoaRequestDTO;
 import com.policia.departamentopolicial.service.*;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.lang.reflect.Field;
@@ -40,6 +43,8 @@ public class WebController {
     private DepoimentoService depoimentoService;
     @Autowired
     private ViewService viewService;
+    @Autowired
+    private ProceduralService proceduralService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -290,5 +295,24 @@ public class WebController {
 
         model.addAttribute("title", "Casos Ativos (VIEW)");
         return "list";
+    }
+
+    @GetMapping("/procedure/encerrar-caso")
+    public String showEncerrarCasoForm() {
+        return "encerrar-caso";
+    }
+
+    @PostMapping("/procedure/encerrar-caso")
+    public String encerrarCaso(@RequestParam("idCaso") Integer idCaso,
+                               @RequestParam("conteudoRelatorio") String conteudoRelatorio,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            proceduralService.executeEncerrarCaso(idCaso, conteudoRelatorio);
+            redirectAttributes.addFlashAttribute("statusMessage", "✅ Sucesso! Caso " + idCaso + " encerrado e relatório final criado.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("statusMessage", "❌ Erro: " + e.getMessage());
+        }
+
+        return "redirect:/procedure/encerrar-caso";
     }
 }

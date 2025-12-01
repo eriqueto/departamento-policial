@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Ocorrência | Departamento Policial</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Estilos específicos para o formulário (igual aos demais) */
+        .form-section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .form-section h3 {
+            margin-top: 0;
+            color: #004d99;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            background-color: #008CBA; /* Azul Claro */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-button:hover {
+            background-color: #007bb5;
+        }
+        .message-success {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .message-error {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🚨 Registro de Nova Ocorrência</h1>
+    </header>
+
+    <nav class="navbar">
+        <a th:href="@{/}">Início</a>
+        <a th:href="@{/view/ocorrencias}">Ver Ocorrências</a>
+        <a th:href="@{/register/ocorrencia}">Registrar Nova</a>
+    </nav>
+
+    <p th:if="${statusMessage}" th:text="${statusMessage}"
+       th:classappend="${statusMessage.startsWith('✅') ? 'message-success' : 'message-error'}"></p>
+
+    <form th:action="@{/register/ocorrencia}" th:object="${ocorrenciaRequest}" method="post">
+
+        <div class="form-section">
+            <h3>Dados da Ocorrência</h3>
+
+            <div class="form-group">
+                <label for="dataHoraRegistro">Data e Hora do Registro</label>
+                <input type="datetime-local" id="dataHoraRegistro" th:field="*{dataHoraRegistro}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição Detalhada</label>
+                <textarea id="descricao" th:field="*{descricao}" rows="5" required placeholder="Relato completo do ocorrido..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Pessoas e Policial Envolvidos</h3>
+
+            <div class="form-group">
+                <label for="declaranteCpf">CPF do Declarante (Pessoa a ser validada pela TRIGGER)</label>
+                <input type="text" id="declaranteCpf" th:field="*{declaranteCpf}" required maxlength="11" placeholder="CPF da pessoa que registrou">
+            </div>
+
+            <div class="form-group">
+                <label for="policialRegistroId">ID do Policial de Registro (Número do Distintivo)</label>
+                <input type="number" id="policialRegistroId" th:field="*{policialRegistroId}" required min="1" placeholder="Ex: 101">
+            </div>
+        </div>
+
+
+        <button type="submit" class="submit-button">Registrar Ocorrência</button>
+    </form>
+
+    <a th:href="@{/}" class="back-link">Voltar para o Início</a>
+</div>
+</body>
+</html>
