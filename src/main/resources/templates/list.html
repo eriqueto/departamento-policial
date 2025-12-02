@@ -34,8 +34,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="item : ${dataList}">
-                <td th:each="header : ${headers}" th:text="${item.get(header)}">Valor</td>
+            <tr th:each="item : ${dataList}" th:onclick="${headers.contains('cpf')} ? |window.location='@{/view/pessoa/{cpf}(cpf=${item.get('cpf')})}'| : null" th:classappend="${headers.contains('cpf')} ? ' clickable-row' : ''">
+                <td th:each="header : ${headers}">
+                    <a th:if="${header == 'cpf'}" th:href="@{/view/pessoa/{cpf}(cpf=${item.get('cpf')})}" th:text="${item.get(header)}"></a>
+                    <span th:unless="${header == 'cpf'}" th:text="${item.get(header)}">Valor</span>
+                </td>
             </tr>
             </tbody>
         </table>

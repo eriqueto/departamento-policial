@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
@@ -102,40 +103,6 @@ public class WebController {
 
     // Endpoints para Visualização de Listas
 
-    @GetMapping("/register/pessoa")
-    public String registerPessoaForm(Model model) {
-        PessoaRequestDTO pessoaDto = new PessoaRequestDTO();
-        pessoaDto.setEndereco(new EnderecoRequestDTO());
-
-        model.addAttribute("pessoaRequest", pessoaDto);
-        model.addAttribute("statusMessage", model.asMap().get("statusMessage"));
-        return "register_pessoa";
-    }
-
-    @PostMapping("/register/pessoa")
-    public String registerPessoaSubmit(@Valid @ModelAttribute("pessoaRequest") PessoaRequestDTO pessoaRequest,
-                                       BindingResult result,
-                                       RedirectAttributes redirectAttributes,
-                                       Model model) {
-        if (result.hasErrors()) {
-            String errorMessage = result.getAllErrors().stream()
-                    .map(error -> error.getDefaultMessage())
-                    .collect(Collectors.joining("; "));
-
-            model.addAttribute("statusMessage", "❌ Erro de validação: " + errorMessage);
-            return "register_pessoa";
-        }
-        try {
-            pessoaService.create(pessoaRequest);
-            redirectAttributes.addFlashAttribute("statusMessage", "Pessoa e Endereço cadastrados com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("statusMessage", "Erro ao cadastrar Pessoa: " + e.getMessage());
-            return "redirect:/register/pessoa";
-        }
-
-        return "redirect:/view/pessoas";
-    }
-
     @GetMapping("/view/pessoas")
     public String viewPessoas(Model model) {
         List<?> dataList = pessoaService.findAll();
@@ -144,12 +111,18 @@ public class WebController {
         model.addAttribute("title", "Pessoas Cadastradas");
         model.addAttribute("dataList", dataMapList);
 
-        if (!dataMapList.isEmpty()) {
-            model.addAttribute("headers", dataMapList.get(0).keySet().stream().collect(Collectors.toList()));
-        } else {
-            model.addAttribute("headers", List.of("cpf", "nome", "sexo", "dataNascimento", "telefone"));
-        }
+        // Mostrar apenas CPF e Nome na listagem de pessoas
+        model.addAttribute("headers", List.of("cpf", "nome"));
         return "list";
+    }
+
+    @GetMapping("/view/pessoa/{cpf}")
+    public String viewPessoaDetail(@PathVariable String cpf, Model model) {
+        // Obtém a entidade Pessoa completa (com endereço e foto) e passa para a view
+        com.policia.departamentopolicial.entity.Pessoa pessoa = pessoaService.getEntityByCpf(cpf);
+        model.addAttribute("person", pessoa);
+        model.addAttribute("title", "Detalhes da Pessoa");
+        return "pessoa_detail";
     }
 
     @GetMapping("/view/enderecos")

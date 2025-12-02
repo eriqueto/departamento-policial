@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -31,6 +32,8 @@ public class PessoaRequestDTO {
 
     @Valid
     private EnderecoRequestDTO endereco;
+
+    private MultipartFile foto;
 
     private Integer idEndereco;;
 }

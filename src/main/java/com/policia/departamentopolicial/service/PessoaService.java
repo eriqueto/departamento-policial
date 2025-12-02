@@ -8,8 +8,10 @@ import com.policia.departamentopolicial.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,18 @@ public class PessoaService {
         Pessoa pessoa = pessoaRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada"));
         return convertToResponseDTO(pessoa);
+    }
+
+    // Retorna a entidade completa (usada pela WebController para exibir detalhes com endereço e foto)
+    public Pessoa getEntityByCpf(String cpf) {
+        return pessoaRepository.findById(cpf)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada"));
+    }
+
+    // Retorna os bytes da foto de perfil (pode ser null)
+    public byte[] getFotoBytes(String cpf) {
+        Pessoa pessoa = getEntityByCpf(cpf);
+        return pessoa.getFotoPerfil();
     }
 
     public List<PessoaResponseDTO> findAll() {
@@ -102,6 +116,17 @@ public class PessoaService {
             Endereco endereco = new Endereco();
             endereco.setId(dto.getIdEndereco());
             pessoa.setEndereco(endereco);
+        }
+
+        // Processar foto se presente
+        MultipartFile foto = dto.getFoto();
+        if (foto != null && !foto.isEmpty()) {
+            try {
+                byte[] bytes = foto.getBytes();
+                pessoa.setFotoPerfil(bytes);
+            } catch (IOException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao processar a foto: " + e.getMessage());
+            }
         }
     }
 }

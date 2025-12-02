@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes da Pessoa</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 th:text="${title}">Detalhes da Pessoa</h1>
+    </header>
+
+    <nav class="navbar">
+        <a th:href="@{/}">Início</a>
+        <a th:href="@{/view/pessoas}">Ver Pessoas</a>
+        <a th:href="@{/register/pessoa}">Cadastrar Pessoa</a>
+    </nav>
+
+    <div class="card card--fullwidth">
+        <h1>Detalhes da Pessoa</h1>
+
+        <div class="detail-card mt-8">
+            <div class="detail-row">
+                <div class="detail-columns">
+                    <div class="detail-photo">
+                        <img th:src="@{/api/pessoas/{cpf}/foto(cpf=${person.cpf})}" alt="Foto de Perfil" id="personPhoto" th:attr="data-name=${person.nome}" />
+                    </div>
+
+                    <div class="detail-col">
+                        <dl class="person-info">
+                            <div class="field"><dt class="label">CPF:</dt><dd th:text="${person.cpf}">-</dd></div>
+                            <div class="field"><dt class="label">Nome:</dt><dd th:text="${person.nome != null ? person.nome : '-'}">-</dd></div>
+                            <div class="field"><dt class="label">Sexo:</dt>
+                                <dd th:text="${person.sexo == 'M' ? 'Masculino' : (person.sexo == 'F' ? 'Feminino' : (person.sexo == 'O' ? 'Outro' : '-'))}">-</dd>
+                            </div>
+                            <div class="field"><dt class="label">Data de Nascimento:</dt>
+                                <dd th:text="${person.dataNascimento != null ? #temporals.format(person.dataNascimento, 'dd/MM/yyyy') : '-'}">-</dd>
+                            </div>
+                            <div class="field"><dt class="label">Telefone:</dt><dd th:text="${person.telefone != null ? person.telefone : '-'}">-</dd></div>
+                        </dl>
+                    </div>
+
+                    <div class="detail-col" th:if="${person.endereco} != null" th:attr="data-endereco-id=${person.endereco.id}">
+                        <h4>Endereço</h4>
+                        <div class="address-block">
+                            <div><span><strong>CEP:</strong></span> <span th:text="${person.endereco.cep != null ? person.endereco.cep : '-'}">-</span></div>
+                            <div><span><strong>Logradouro:</strong></span> <span th:text="${person.endereco.logradouro != null ? person.endereco.logradouro : '-'}">-</span></div>
+                            <div><span><strong>Complemento:</strong></span> <span th:text="${person.endereco.complemento != null ? person.endereco.complemento : '-'}">-</span></div>
+                            <div><span><strong>Bairro:</strong></span> <span th:text="${person.endereco.bairro != null ? person.endereco.bairro : '-'}">-</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <a th:href="@{/view/pessoas}" class="back-link">Voltar para a lista</a>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const cpf = /*[[${person.cpf}]]*/ '' || document.querySelector('[th\\:text="${person.cpf}"]')?.textContent?.trim();
+        const status = document.getElementById('status');
+
+        const img = document.getElementById('personPhoto');
+        function makePlaceholder(name){ const initials = (name || '').split(/\s+/).filter(Boolean).slice(0,2).map(s=>s.charAt(0).toUpperCase()).join('') || 'P'; const bg = '#0b3a66'; const fg = '#ffffff'; const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect width='100%' height='100%' fill='${bg}'/><text x='50%' y='50%' dy='.1em' font-family='Segoe UI, Roboto, Arial, sans-serif' font-size='56' fill='${fg}' text-anchor='middle'>${initials}</text></svg>`; return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+        if(img){ img.addEventListener('error', function(){ const name = this.getAttribute('data-name') || ''; this.src = makePlaceholder(name); this.style.display = 'block'; }); if(!img.src || img.src.trim().length===0){ img.src = makePlaceholder(img.getAttribute('data-name')); } }
+    })();
+</script>
+</body>
+</html>

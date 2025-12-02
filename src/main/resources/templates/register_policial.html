@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Policial | Departamento Policial</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .form-section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display:block; margin-bottom:4px; font-weight:bold; }
+        .form-group input, .form-group select { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
+        .submit-button { background:#4CAF50; color:#fff; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>👮 Cadastro de Policial</h1>
+    </header>
+
+    <nav class="navbar">
+        <a th:href="@{/}">Início</a>
+        <a th:href="@{/view/policiais}">Ver Policiais</a>
+    </nav>
+
+    <p th:if="${statusMessage}" th:text="${statusMessage}"></p>
+
+    <form th:action="@{/register/policial}" th:object="${policialRequest}" method="post">
+        <div class="form-section">
+            <h3>Dados do Policial</h3>
+
+            <div class="form-group">
+                <label for="pessoaCPF">Pessoa (CPF)</label>
+                <select id="pessoaCPF" th:field="*{pessoaCPF}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="p : ${pessoas}" th:value="${p.cpf}" th:text="${p.cpf + ' - ' + p.nome}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo</label>
+                <select id="cargo" th:field="*{cargo}">
+                    <option value="">Selecione ou deixe em branco (padrão: policial)</option>
+                    <option value="Investigador">Investigador</option>
+                    <option value="Policial">Policial</option>
+                    <option value="Delegado">Delegado</option>
+                    <option value="subdelegado">Subdelegado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="delegaciaId">Delegacia</label>
+                <select id="delegaciaId" th:field="*{delegaciaId}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="d : ${delegacias}" th:value="${d.id}" th:text="${d.id + ' - ' + d.nome}"></option>
+                </select>
+            </div>
+
+        </div>
+        <button type="submit" class="submit-button">Cadastrar Policial</button>
+    </form>
+
+    <a th:href="@{/}" class="back-link">Voltar</a>
+</div>
+</body>
+</html>

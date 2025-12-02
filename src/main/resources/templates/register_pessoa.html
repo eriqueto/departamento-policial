@@ -4,61 +4,12 @@
     <meta charset="UTF-8">
     <title>Cadastro de Pessoa | Departamento Policial</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        /* Estilos específicos para o formulário */
-        .form-section {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .form-section h3 {
-            margin-top: 0;
-            color: #004d99;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Inclui padding e borda na largura total */
-        }
-        .submit-button {
-            background-color: #4CAF50; /* Verde */
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .submit-button:hover {
-            background-color: #45a049;
-        }
-        .message-success {
-            color: green;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .message-error {
-            color: red;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-    </style>
+    <!-- estilos centralizados em /static/css/style.css -->
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>👮‍♂️ Cadastro de Nova Pessoa</h1>
+        <h1>Cadastro de Pessoa</h1>
     </header>
 
     <nav class="navbar">
@@ -70,62 +21,69 @@
     <p th:if="${statusMessage}" th:text="${statusMessage}"
        th:classappend="${statusMessage.startsWith('✅') ? 'message-success' : 'message-error'}"></p>
 
-    <form th:action="@{/register/pessoa}" th:object="${pessoaRequest}" method="post">
+    <form th:action="@{/register/pessoa}" th:object="${pessoaRequest}" method="post" enctype="multipart/form-data">
 
-        <div class="form-section">
-            <h3>Dados Pessoais</h3>
+        <div class="form-grid">
+            <div class="form-section">
+                <h3>Dados Pessoais</h3>
 
-            <div class="form-group">
-                <label for="cpf">CPF (apenas números)</label>
-                <input type="text" id="cpf" th:field="*{cpf}" required maxlength="11" placeholder="Ex: 12345678900">
+                <div class="form-group">
+                    <label for="cpf">CPF (apenas números)</label>
+                    <input type="text" id="cpf" th:field="*{cpf}" required maxlength="11" placeholder="Ex: 12345678900">
+                </div>
+
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" th:field="*{nome}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sexo">Sexo</label>
+                    <select id="sexo" th:field="*{sexo}" required>
+                        <option value="">Selecione...</option>
+                        <option value="M">Masculino (M)</option>
+                        <option value="F">Feminino (F)</option>
+                        <option value="O">Outro (O)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataNascimento">Data de Nascimento</label>
+                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" th:field="*{telefone}" placeholder="Ex: (00) 90000-0000">
+                </div>
+
+                <div class="form-group">
+                    <label for="foto">Foto de Perfil (opcional)</label>
+                    <input type="file" id="foto" th:field="*{foto}" accept="image/*">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="nome">Nome Completo</label>
-                <input type="text" id="nome" th:field="*{nome}" required>
-            </div>
+            <div class="form-section">
+                <h3>Dados do Endereço</h3>
 
-            <div class="form-group">
-                <label for="sexo">Sexo</label>
-                <select id="sexo" th:field="*{sexo}" required>
-                    <option value="">Selecione...</option>
-                    <option value="M">Masculino (M)</option>
-                    <option value="F">Feminino (F)</option>
-                    <option value="O">Outro (O)</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="cep">CEP</label>
+                    <input type="text" id="cep" th:field="*{endereco.cep}" required maxlength="8" placeholder="Ex: 12345678">
+                </div>
 
-            <div class="form-group">
-                <label for="dataNascimento">Data de Nascimento</label>
-                <input type="date" id="dataNascimento" th:field="*{dataNascimento}" required>
-            </div>
+                <div class="form-group">
+                    <label for="logradouro">Logradouro (Rua, Avenida, etc.)</label>
+                    <input type="text" id="logradouro" th:field="*{endereco.logradouro}" required>
+                </div>
+                <div class="form-group">
+                    <label for="complemento">Complemento</label>
+                    <input type="text" id="complemento" th:field="*{endereco.complemento}">
+                </div>
 
-            <div class="form-group">
-                <label for="telefone">Telefone</label>
-                <input type="text" id="telefone" th:field="*{telefone}" placeholder="Ex: (00) 90000-0000">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h3>Dados do Endereço</h3>
-
-            <div class="form-group">
-                <label for="cep">CEP</label>
-                <input type="text" id="cep" th:field="*{endereco.cep}" required maxlength="8" placeholder="Ex: 12345678">
-            </div>
-
-            <div class="form-group">
-                <label for="logradouro">Logradouro (Rua, Avenida, etc.)</label>
-                <input type="text" id="logradouro" th:field="*{endereco.logradouro}" required>
-            </div>
-            <div class="form-group">
-                <label for="complemento">Complemento</label>
-                <input type="text" id="complemento" th:field="*{endereco.complemento}">
-            </div>
-
-            <div class="form-group">
-                <label for="bairro">Bairro</label>
-                <input type="text" id="bairro" th:field="*{endereco.bairro}" required>
+                <div class="form-group">
+                    <label for="bairro">Bairro</label>
+                    <input type="text" id="bairro" th:field="*{endereco.bairro}" required>
+                </div>
             </div>
         </div>
 
