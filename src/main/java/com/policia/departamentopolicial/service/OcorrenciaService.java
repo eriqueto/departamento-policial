@@ -7,6 +7,7 @@ import com.policia.departamentopolicial.entity.Pessoa;
 import com.policia.departamentopolicial.entity.Policial;
 import com.policia.departamentopolicial.repository.OcorrenciaRepository;
 import com.policia.departamentopolicial.repository.PessoaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,13 +42,8 @@ public class OcorrenciaService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public OcorrenciaResponseDTO create(OcorrenciaRequestDTO dto) {
-        if (dto.getNumBoletim() != null && dto.getNumBoletim() > 0) {
-            if (ocorrenciaRepository.existsById(dto.getNumBoletim())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Número de Boletim já cadastrado");
-            }
-        }
-
         Ocorrencia novaOcorrencia = new Ocorrencia();
         updateEntityFromDTO(novaOcorrencia, dto);
 
@@ -55,6 +51,7 @@ public class OcorrenciaService {
         return convertToResponseDTO(ocorrenciaSalva);
     }
 
+    @Transactional
     public OcorrenciaResponseDTO update(int id, OcorrenciaRequestDTO dto) {
         Ocorrencia ocorrenciaExistente = ocorrenciaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ocorrência não encontrada"));
@@ -71,7 +68,6 @@ public class OcorrenciaService {
         }
         ocorrenciaRepository.deleteById(id);
     }
-
 
     private OcorrenciaResponseDTO convertToResponseDTO(Ocorrencia ocorrencia) {
         OcorrenciaResponseDTO dto = new OcorrenciaResponseDTO();
@@ -91,18 +87,13 @@ public class OcorrenciaService {
     }
 
     private void updateEntityFromDTO(Ocorrencia ocorrencia, OcorrenciaRequestDTO dto) {
-        if (ocorrencia.getNumBoletim() == null && dto.getNumBoletim() != null) {
-            ocorrencia.setNumBoletim(dto.getNumBoletim());
-        }
-
         ocorrencia.setDataHoraRegistro(dto.getDataHoraRegistro());
         ocorrencia.setDescricao(dto.getDescricao());
 
         Pessoa declarante = pessoaRepository.findById(dto.getDeclaranteCpf())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada"));;
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Declarante (Pessoa) não encontrado com CPF: " + dto.getDeclaranteCpf()));
         ocorrencia.setDeclarante(declarante);
 
-        // 2. Busca a Entidade Policial de Registro usando o ID fornecido no DTO
         Policial policialRegistro = policialService.getPolicialById(dto.getPolicialRegistroId());
         ocorrencia.setPolicialRegistro(policialRegistro);
     }

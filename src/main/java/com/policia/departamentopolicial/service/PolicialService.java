@@ -7,6 +7,7 @@ import com.policia.departamentopolicial.entity.Pessoa;
 import com.policia.departamentopolicial.entity.Delegacia;
 import com.policia.departamentopolicial.repository.PessoaRepository;
 import com.policia.departamentopolicial.repository.PolicialRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class PolicialService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public PolicialResponseDTO create(PolicialRequestDTO dto) {
         if (dto.getNumDistintivo() == null || dto.getNumDistintivo() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Número do Distintivo é obrigatório e deve ser positivo");
@@ -53,6 +55,7 @@ public class PolicialService {
         return convertToResponseDTO(policialSalvo);
     }
 
+    @Transactional
     public PolicialResponseDTO update(int id, PolicialRequestDTO dto) {
         Policial policialExistente = policialRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Policial não encontrado"));

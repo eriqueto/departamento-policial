@@ -8,6 +8,7 @@ import com.policia.departamentopolicial.repository.EvidenciaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Importante
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class EvidenciaService {
     private EvidenciaRepository evidenciaRepository;
 
     @Autowired
-    private CasoService casoService; // Necessário para buscar o Caso relacionado
+    private CasoService casoService;
 
     public Evidencia getEvidenciaById(int id) {
         return evidenciaRepository.findById(id)
@@ -28,19 +29,13 @@ public class EvidenciaService {
     }
 
     public List<EvidenciaResponseDTO> getEvidencias() {
-        List<Evidencia> evidencias = evidenciaRepository.findAll();
-        return evidencias.stream()
+        return evidenciaRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional // Adicionado
     public EvidenciaResponseDTO create(EvidenciaRequestDTO dto) {
-        if (dto.getId() != null && dto.getId() > 0) {
-            if (evidenciaRepository.existsById(dto.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID de Evidência já cadastrado");
-            }
-        }
-
         Evidencia novaEvidencia = new Evidencia();
         updateEntityFromDTO(novaEvidencia, dto);
 
@@ -48,6 +43,7 @@ public class EvidenciaService {
         return convertToResponseDTO(evidenciaSalva);
     }
 
+    @Transactional // Adicionado
     public EvidenciaResponseDTO update(int id, EvidenciaRequestDTO dto) {
         Evidencia evidenciaExistente = evidenciaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evidência não encontrada"));
@@ -80,10 +76,6 @@ public class EvidenciaService {
     }
 
     private void updateEntityFromDTO(Evidencia evidencia, EvidenciaRequestDTO dto) {
-        if (evidencia.getId() == null && dto.getId() != null) {
-            evidencia.setId(dto.getId());
-        }
-
         evidencia.setDescricao(dto.getDescricao());
         evidencia.setLocalizacao(dto.getLocalizacao());
         evidencia.setDataColeta(dto.getDataColeta());

@@ -11,6 +11,7 @@ import com.policia.departamentopolicial.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -38,6 +39,33 @@ public class PessoaEnvolvidaService {
         return pessoaEnvolvidaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Relacionamento Pessoa-Caso não encontrado"));
+    }
+
+    @Transactional
+    public PessoaEnvolvida buscarOuCriar(Integer casoId, String pessoaCpf) {
+        PessoaEnvolvidaId id = new PessoaEnvolvidaId();
+        id.setIdCaso(casoId);
+        id.setCpfPessoa(pessoaCpf);
+
+        // Tenta buscar no banco
+        return pessoaEnvolvidaRepository.findById(id)
+                .orElseGet(() -> {
+                    // SE NÃO EXISTIR, CRIA UM NOVO AGORA
+                    PessoaEnvolvida novo = new PessoaEnvolvida();
+                    novo.setId(id);
+                    // Define um padrão, já que estamos criando automaticamente via Depoimento
+                    novo.setTipoEnvolvimento("Depoente");
+
+                    // Busca as entidades completas para associar
+                    Caso caso = casoService.getCasoById(casoId);
+                    novo.setCaso(caso);
+
+                    Pessoa pessoa = pessoaRepository.findById(pessoaCpf)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada no cadastro geral"));
+                    novo.setPessoa(pessoa);
+
+                    return pessoaEnvolvidaRepository.save(novo);
+                });
     }
 
     public List<PessoaEnvolvidaResponseDTO> getPessoasEnvolvidas() {
@@ -95,25 +123,18 @@ public class PessoaEnvolvidaService {
 
     private PessoaEnvolvidaResponseDTO convertToResponseDTO(PessoaEnvolvida envolvimento) {
         PessoaEnvolvidaResponseDTO dto = new PessoaEnvolvidaResponseDTO();
-
         dto.setCasoId(envolvimento.getId().getIdCaso());
         dto.setPessoaCpf(envolvimento.getId().getCpfPessoa());
-
         dto.setTipoEnvolvimento(envolvimento.getTipoEnvolvimento());
-
         return dto;
     }
 
     private void updateEntityFromDTO(PessoaEnvolvida envolvimento, PessoaEnvolvidaRequestDTO dto) {
-
         envolvimento.setTipoEnvolvimento(dto.getTipoEnvolvimento());
-
         Caso caso = casoService.getCasoById(dto.getCasoId());
         envolvimento.setCaso(caso);
-
         Pessoa pessoa = pessoaRepository.findById(dto.getPessoaCpf())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Pessoa não encontrado"));;
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada"));;
         envolvimento.setPessoa(pessoa);
     }
 }

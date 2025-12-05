@@ -5,6 +5,7 @@ import com.policia.departamentopolicial.dto.EnderecoRequestDTO;
 import com.policia.departamentopolicial.dto.EnderecoResponseDTO;
 import com.policia.departamentopolicial.entity.Endereco;
 import com.policia.departamentopolicial.repository.EnderecoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,15 +33,8 @@ public class EnderecoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public EnderecoResponseDTO create(EnderecoRequestDTO dto) {
-        if (dto.getId() != null) {
-            if (dto.getId() <= 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id deve ser um valor positivo para criação manual");
-            }
-            if (enderecoRepository.existsById(dto.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id já cadastrado");
-            }
-        }
         Endereco novoEndereco = new Endereco();
         updateEntityFromDTO(novoEndereco, dto);
 
@@ -48,6 +42,7 @@ public class EnderecoService {
         return convertToResponseDTO(enderecoSalvo);
     }
 
+    @Transactional
     public EnderecoResponseDTO update(Integer id, EnderecoRequestDTO dto) {
         Endereco enderecoExistente = enderecoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereco não encontrado"));
@@ -77,13 +72,9 @@ public class EnderecoService {
     }
 
     private void updateEntityFromDTO(Endereco endereco, EnderecoRequestDTO dto) {
-        if (endereco.getId() == null && dto.getId() != null) {
-            endereco.setId(dto.getId());
-        }
         endereco.setCep(dto.getCep());
         endereco.setLogradouro(dto.getLogradouro());
         endereco.setComplemento(dto.getComplemento());
         endereco.setBairro(dto.getBairro());
-
     }
 }

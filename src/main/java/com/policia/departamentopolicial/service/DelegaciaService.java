@@ -5,6 +5,7 @@ import com.policia.departamentopolicial.dto.DelegaciaResponseDTO;
 import com.policia.departamentopolicial.entity.Delegacia;
 import com.policia.departamentopolicial.entity.Endereco;
 import com.policia.departamentopolicial.repository.DelegaciaRepository;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +38,8 @@ public class DelegaciaService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public DelegaciaResponseDTO create(DelegaciaRequestDTO dto) {
-        if (dto.getId() == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id é obrigatório");
-        }
-        if (delegaciaRepository.existsById(dto.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id já cadastrado");
-        }
-
         Delegacia novaDelegacia = new Delegacia();
         updateEntityFromDTO(novaDelegacia, dto);
 
@@ -52,6 +47,7 @@ public class DelegaciaService {
         return convertToResponseDTO(delegaciaSalva);
     }
 
+    @Transactional
     public DelegaciaResponseDTO update(int id, DelegaciaRequestDTO dto) {
         Delegacia delegaciaExistente = delegaciaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Delegacia não encontrada"));
@@ -84,14 +80,10 @@ public class DelegaciaService {
     }
 
     private void updateEntityFromDTO(Delegacia delegacia, DelegaciaRequestDTO dto) {
-        if (delegacia.getId() == null) {
-            delegacia.setId(dto.getId());
-        }
-
         delegacia.setNome(dto.getNome());
         delegacia.setTelefone(dto.getTelefone());
 
-        if (dto.getEndereco() != null) {
+        if (dto.getEndereco() != null && dto.getEndereco().getId() != null) {
             Endereco endereco = new Endereco();
             endereco.setId(dto.getEndereco().getId());
             delegacia.setEndereco(endereco);

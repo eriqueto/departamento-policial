@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Casos de Investigação</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="text-primary float-start">Casos de Investigação</h2>
+            <a th:href="@{/casos/novo}" class="btn btn-success float-end">
+                + Novo Caso
+            </a>
+        </div>
+        <div class="card-body">
+
+            <nav class="navbar">
+                <a th:href="@{/}">Início</a>
+                <a th:href="@{/view/pessoas}">Pessoas</a>
+                <a th:href="@{/policiais}">Policiais</a>
+                <a th:href="@{/delegacias}">Delegacias</a>
+                <a th:href="@{/enderecos}">Endereços</a>
+                <a th:href="@{/ocorrencias}">Ocorrências</a>
+                <a th:href="@{/casos}">Casos</a>
+                <a th:href="@{/view/casos-ativos}">Casos Ativos (VIEW)</a>
+                <a th:href="@{/procedure/encerrar-caso}">Encerrar Caso</a>
+                <a th:href="@{/evidencias}">Evidências</a>
+                <a th:href="@{/relatorios}">Relatórios</a>
+                <a th:href="@{/depoimentos}">Depoimentos</a>
+            </nav>
+
+            <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${mensagemSucesso}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${mensagemErro}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID CASO</th>
+                    <th>OCORRÊNCIA (ID)</th>
+                    <th>STATUS</th>
+                    <th>POLICIAL RESP.</th>
+                    <th>ABERTURA</th>
+                    <th>FECHAMENTO</th>
+                    <th>AÇÕES</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="caso : ${listaCasos}">
+                    <td th:text="${caso.id}"></td>
+                    <td th:text="${caso.ocorrenciaNumBoletim}"></td>
+
+                    <td>
+                        <span th:class="${caso.statusCaso == 'Aberto' ? 'badge bg-success' : 'badge bg-secondary'}"
+                              th:text="${caso.statusCaso}">
+                        </span>
+                    </td>
+
+                    <td th:text="${caso.policialResponsavelId}"></td>
+
+                    <td th:text="${#temporals.format(caso.dataAbertura, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${caso.dataFechamento != null} ? ${#temporals.format(caso.dataFechamento, 'dd/MM/yyyy')} : '-'"></td>
+
+                    <td>
+                        <a th:href="@{/casos/editar/{id}(id=${caso.id})}"
+                           class="btn btn-warning btn-sm">Editar</a>
+
+                        <a th:href="@{/casos/deletar/{id}(id=${caso.id})}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Tem certeza que deseja excluir este caso?');">Excluir</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-muted">
+            <a th:href="@{/}">Voltar para o Início</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

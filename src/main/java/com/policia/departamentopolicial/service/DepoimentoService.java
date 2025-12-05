@@ -8,6 +8,7 @@ import com.policia.departamentopolicial.repository.DepoimentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Importante
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class DepoimentoService {
     private DepoimentoRepository depoimentoRepository;
 
     @Autowired
-    private PessoaEnvolvidaService pessoaEnvolvidaService; // Necessário para buscar o Envolvido
+    private PessoaEnvolvidaService pessoaEnvolvidaService;
 
     public Depoimento getDepoimentoById(int id) {
         return depoimentoRepository.findById(id)
@@ -28,26 +29,20 @@ public class DepoimentoService {
     }
 
     public List<DepoimentoResponseDTO> getDepoimentos() {
-        List<Depoimento> depoimentos = depoimentoRepository.findAll();
-        return depoimentos.stream()
+        return depoimentoRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public DepoimentoResponseDTO create(DepoimentoRequestDTO dto) {
-        if (dto.getId() != null && dto.getId() > 0) {
-            if (depoimentoRepository.existsById(dto.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID de Depoimento já cadastrado");
-            }
-        }
-
         Depoimento novoDepoimento = new Depoimento();
         updateEntityFromDTO(novoDepoimento, dto);
-
         Depoimento depoimentoSalvo = depoimentoRepository.save(novoDepoimento);
         return convertToResponseDTO(depoimentoSalvo);
     }
 
+    @Transactional // Adicionado
     public DepoimentoResponseDTO update(int id, DepoimentoRequestDTO dto) {
         Depoimento depoimentoExistente = depoimentoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Depoimento não encontrado"));
@@ -75,7 +70,6 @@ public class DepoimentoService {
             dto.setCasoId(depoimento.getEnvolvido().getId().getIdCaso());
             dto.setPessoaCpf(depoimento.getEnvolvido().getId().getCpfPessoa());
         }
-
         return dto;
     }
 
@@ -87,10 +81,11 @@ public class DepoimentoService {
         depoimento.setDataHoraDepoimento(dto.getDataHoraDepoimento());
         depoimento.setConteudoDepoimento(dto.getConteudoDepoimento());
 
-        PessoaEnvolvida envolvido = pessoaEnvolvidaService.getPessoaEnvolvidaById(
+        PessoaEnvolvida envolvido = pessoaEnvolvidaService.buscarOuCriar(
                 dto.getCasoId(),
                 dto.getPessoaCpf()
         );
+
         depoimento.setEnvolvido(envolvido);
     }
 }

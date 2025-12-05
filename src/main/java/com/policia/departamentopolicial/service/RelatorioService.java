@@ -9,6 +9,7 @@ import com.policia.departamentopolicial.repository.RelatorioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Importante
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,30 +22,25 @@ public class RelatorioService {
     private RelatorioRepository relatorioRepository;
 
     @Autowired
-    private CasoService casoService; // Necessário para buscar o Caso relacionado
+    private CasoService casoService;
 
     @Autowired
-    private PolicialService policialService; // Necessário para buscar o Policial Emissor
+    private PolicialService policialService;
 
     public Relatorio getRelatorioById(int id) {
-        Relatorio relatorio = relatorioRepository.findById(id)
+        return relatorioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Relatório não encontrado"));
-        return relatorio;
     }
 
     public List<RelatorioResponseDTO> getRelatorios() {
-        List<Relatorio> relatorios = relatorioRepository.findAll();
-        return relatorios.stream()
+        return relatorioRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional // Adicionado
     public RelatorioResponseDTO create(RelatorioRequestDTO dto) {
-        if (dto.getId() != null && dto.getId() > 0) {
-            if (relatorioRepository.existsById(dto.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID de Relatório já cadastrado");
-            }
-        }
+        // ID é automático (GenerationType.IDENTITY), não verificamos manualmente
 
         Relatorio novoRelatorio = new Relatorio();
         updateEntityFromDTO(novoRelatorio, dto);
@@ -53,6 +49,7 @@ public class RelatorioService {
         return convertToResponseDTO(relatorioSalvo);
     }
 
+    @Transactional // Adicionado
     public RelatorioResponseDTO update(int id, RelatorioRequestDTO dto) {
         Relatorio relatorioExistente = relatorioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Relatório não encontrado"));
@@ -69,7 +66,6 @@ public class RelatorioService {
         }
         relatorioRepository.deleteById(id);
     }
-
 
     private RelatorioResponseDTO convertToResponseDTO(Relatorio relatorio) {
         RelatorioResponseDTO dto = new RelatorioResponseDTO();
@@ -88,12 +84,11 @@ public class RelatorioService {
     }
 
     private void updateEntityFromDTO(Relatorio relatorio, RelatorioRequestDTO dto) {
-        if (relatorio.getId() == null && dto.getId() != null) {
-            relatorio.setId(dto.getId());
-        }
+        // ID é gerenciado pelo banco, não alteramos aqui
 
         relatorio.setConteudo(dto.getConteudo());
 
+        // Busca e associa as entidades relacionadas
         Caso caso = casoService.getCasoById(dto.getCasoId());
         relatorio.setCaso(caso);
 
